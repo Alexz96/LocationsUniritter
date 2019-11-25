@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LocationsUniritter</string>
+    <string name="texto_botao">Login</string>
 </resources>
