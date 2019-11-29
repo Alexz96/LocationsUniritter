@@ -2,9 +2,10 @@ package br.com.uniritter.locationsuniritter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.os.Bundle;
 
-public class UltimasPosicaoActivity extends AppCompatActivity {
+public class UltimasPosicaoActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

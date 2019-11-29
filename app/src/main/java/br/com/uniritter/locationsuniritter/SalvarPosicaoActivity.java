@@ -1,7 +1,6 @@
 package br.com.uniritter.locationsuniritter;
 import br.com.uniritter.locationsuniritter.configs.ConfigFirebase;
 
-
 import android.util.Log;
 import android.Manifest;
 import android.os.Bundle;
@@ -17,6 +16,7 @@ import android.location.LocationManager;
 import android.content.pm.PackageManager;
 
 import androidx.core.app.ActivityCompat;
+import br.com.uniritter.locationsuniritter.configs.ConfigGPS;
 
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -84,6 +84,7 @@ public class SalvarPosicaoActivity extends Activity {
         }
 
         createLocationRequest();
+        pedirPermissoes();
     }
 
     @Override
@@ -99,16 +100,7 @@ public class SalvarPosicaoActivity extends Activity {
         finish();
     }
 
-    //////////////////
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(100000);
-        mLocationRequest.setFastestInterval(50000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-
-    private void pedirPermissoes() {
+    public void pedirPermissoes() {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -116,77 +108,13 @@ public class SalvarPosicaoActivity extends Activity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }
         else
-            configurarServico();
+            new ConfigGPS(referencia, this).configurarServico();
     }
 
-
-    ////////////////////////////////////////////////
-
-    public void configurarServico(){
-        try {
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-            LocationListener locationListener = new LocationListener() {
-                public void onLocationChanged(Location location) {
-                    atualizar(location);
-                }
-
-                public void onStatusChanged(String provider, int status, Bundle extras) { }
-
-                public void onProviderEnabled(String provider) { }
-
-                public void onProviderDisabled(String provider) { }
-            };
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (android.location.LocationListener) locationListener);
-        }catch(SecurityException ex){
-            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    public void atualizar(Location location)
-    {
-        SimpleDateFormat dateFormatbra = new SimpleDateFormat("yyyy/MM/dd");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy-HH:mm:ss");
-        SimpleDateFormat dateFormat_hora = new SimpleDateFormat("HH:mm:ss");
-        SimpleDateFormat dateFormat_minutos = new SimpleDateFormat("mm");
-        SimpleDateFormat dateFormat_seg = new SimpleDateFormat("ss");
-        Date data = new Date();
-
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(data);
-        Date data_atual = cal.getTime();
-
-        String data_completa = dateFormat.format(data_atual);
-        String hora_atual = dateFormat_hora.format(data_atual);
-        String min_atual = dateFormat_minutos.format(data_atual);
-        String segs = dateFormat_seg.format(data_atual);
-        String databra = dateFormatbra.format(data_atual);
-
-
-        Log.i("data_completa", data_completa);
-        Log.i("data_atual", data_atual.toString());
-        Log.i("hora_atual", hora_atual); // Esse é o que você quer
-
-
-        Double latPoint = location.getLatitude();
-        Double lngPoint = location.getLongitude();
-
-        String latitude = latPoint.toString();
-        // Log.i("GPSLATITUDE:", latitude);
-        String longitude = lngPoint.toString();
-        // Log.i("GPSLONGITUDE:", longitude);
-
-        String coordenadas = latitude + "#" + longitude;
-
-        int min = Integer.parseInt(String.valueOf(min_atual));
-        int ss =  Integer.parseInt(String.valueOf(segs));
-        Log.i("GPSLONGITUDE:", segs);
-
-        if((min%2)==0 && (ss==59)) {
-            DatabaseReference produtos = referencia.child(databra);
-            produtos.child(data_completa).setValue(coordenadas);
-            Log.i("GPSLONGITUDE:", coordenadas);
-            Log.i("GPSLONGITUDE:", data_completa);
-        }
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 }
