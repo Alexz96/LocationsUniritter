@@ -73,7 +73,9 @@ public class SalvarPosicaoActivity extends Activity {
         btnSalvarPosicao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //fazer o salva mento
+                // Utiliza classe criada para facilitar salvamento da posição no banco
+                ConfigGPS configGPS = new ConfigGPS(referencia, SalvarPosicaoActivity.this);
+                configGPS.configurarServico();
             }
         });
 
