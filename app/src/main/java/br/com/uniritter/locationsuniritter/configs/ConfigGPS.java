@@ -85,11 +85,10 @@ public class ConfigGPS {
 
 
         if((min%5) == 0 && (ss==00)) {
-
             //TODO: SALVA A CADA 5 min.
 
-            user.put("lati", latitude);
-            user.put("long", longitude);
+            user.put("latitude", latitude);
+            user.put("longitude", longitude);
 
             databaseReference
                     .child("localizacao")

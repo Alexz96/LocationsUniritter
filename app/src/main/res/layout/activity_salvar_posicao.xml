@@ -33,7 +33,7 @@
         android:id="@+id/id_log_off"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="36dp"
         android:text="LOGOUT"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
