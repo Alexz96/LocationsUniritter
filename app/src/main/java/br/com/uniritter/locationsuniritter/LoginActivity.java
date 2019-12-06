@@ -68,7 +68,6 @@ public class LoginActivity extends Activity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "Login efetuado com sucesso!", Toast.LENGTH_SHORT).show();
                             Intent intentMain = new Intent(getApplicationContext(), SalvarPosicaoActivity.class);
                             startActivity(intentMain);
                             finish();
@@ -78,4 +77,10 @@ public class LoginActivity extends Activity {
                     }
                 });
     }
+
+    @Override
+    public void onBackPressed() {
+        finishAffinity();
+    }
+
 }

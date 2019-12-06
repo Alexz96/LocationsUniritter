@@ -35,13 +35,15 @@ public class ConfigGPS {
     }
 
 
-    public void configurarServico(){
+    public void configurarServico(boolean salvarAgora){
         try {
+            final boolean[] a = {salvarAgora};
             LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
 
             LocationListener locationListener = new LocationListener() {
                 public void onLocationChanged(Location location) {
-                    atualizar(location);
+                    atualizar(location, a[0]);
+                    a[0] = false;
                 }
 
                 public void onStatusChanged(String provider, int status, Bundle extras) { }
@@ -58,7 +60,7 @@ public class ConfigGPS {
         }
     }
 
-    private void atualizar(Location location)
+    private void atualizar(Location location, boolean salvarAgora)
     {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy-HH:mm:ss");
         SimpleDateFormat dateFormat_minutos = new SimpleDateFormat("mm");
@@ -68,6 +70,7 @@ public class ConfigGPS {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(data);
+        cal.add(Calendar.HOUR, -3);
         Date data_atual = cal.getTime();
 
         String data_completa = dateFormat.format(data_atual);
@@ -83,8 +86,7 @@ public class ConfigGPS {
         int min = Integer.parseInt(String.valueOf(min_atual));
         int ss =  Integer.parseInt(String.valueOf(segs));
 
-
-        if((min%5) == 0 && (ss==00)) {
+        if((min%5) == 0 && (ss==00) || salvarAgora) {
             //TODO: SALVA A CADA 5 min.
 
             user.put("latitude", latitude);

@@ -74,16 +74,14 @@ public class SalvarPosicaoActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // Utiliza classe criada para facilitar salvamento da posição no banco
-                ConfigGPS configGPS = new ConfigGPS(referencia, SalvarPosicaoActivity.this);
-                configGPS.configurarServico();
+                if(!verificaPermissao())
+                    pedirPermissoes();
+                else{
+                    ConfigGPS configGPS = new ConfigGPS(referencia, SalvarPosicaoActivity.this);
+                    configGPS.configurarServico(true);
+                }
             }
         });
-
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        for(String provider : locationManager.getAllProviders()){
-            Toast.makeText(getApplicationContext(), provider, Toast.LENGTH_LONG).show();
-        }
 
         createLocationRequest();
         pedirPermissoes();
@@ -110,7 +108,7 @@ public class SalvarPosicaoActivity extends Activity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }
         else
-            new ConfigGPS(referencia, this).configurarServico();
+            new ConfigGPS(referencia, this).configurarServico(false);
     }
 
     protected void createLocationRequest() {
@@ -118,5 +116,15 @@ public class SalvarPosicaoActivity extends Activity {
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    private boolean verificaPermissao(){
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            Toast.makeText(getApplicationContext(), "Por favor permitir localização para o aplicativo.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
     }
 }

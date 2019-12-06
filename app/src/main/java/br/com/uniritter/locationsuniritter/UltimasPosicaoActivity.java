@@ -2,16 +2,21 @@ package br.com.uniritter.locationsuniritter;
 
 import androidx.annotation.NonNull;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.location.LocationRequest;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -20,7 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.core.app.ActivityCompat;
 import br.com.uniritter.locationsuniritter.configs.ConfigFirebase;
+import br.com.uniritter.locationsuniritter.configs.ConfigGPS;
 
 public class UltimasPosicaoActivity extends Activity {
 
@@ -32,11 +39,15 @@ public class UltimasPosicaoActivity extends Activity {
     private ArrayList<String> valores = new ArrayList<String>();
 
     // Componentes do Android
+    private FirebaseAuth auth = ConfigFirebase.getFirebaseAutenticacao();
     private TextView dataPos1, posicao1;
     private TextView dataPos2, posicao2;
     private TextView dataPos3, posicao3;
     private TextView dataPos4, posicao4;
     private TextView dataPos5, posicao5;
+    private TextView logoutUltimaPos;
+    private LocationRequest mLocationRequest;
+    private DatabaseReference referencia = FirebaseDatabase.getInstance().getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +65,25 @@ public class UltimasPosicaoActivity extends Activity {
         posicao4 = findViewById(R.id.pos4);
         dataPos5 = findViewById(R.id.datapos5);
         posicao5 = findViewById(R.id.pos5);
+        logoutUltimaPos = findViewById(R.id.id_logoutultimaposicao);
+
+        createLocationRequest();
+        pedirPermissoes();
+
+        logoutUltimaPos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UltimasPosicaoActivity.this, LoginActivity.class);
+
+                //Verifica usuario logado
+                if( auth.getCurrentUser() != null ){
+                    auth.signOut();
+                }
+
+                startActivity(intent);
+                finish();
+            }
+        });
 
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
@@ -70,12 +100,12 @@ public class UltimasPosicaoActivity extends Activity {
                     Collections.sort(datapos);
 
                     //Pega o indice das datas para achar a longitude e latitude
-                    for(int i = 0; i < datapos.size(); i++){
+                    for(int i = datapos.size(); i > 0; i--){
                         if(index >= 5){
                             break;
                         }
-                        valores.add(datapos.get(i));
-                        valores.add(dados.get(datapos.get(i)).toString().toUpperCase()
+                        valores.add(datapos.get(i-1));
+                        valores.add(dados.get(datapos.get(i-1)).toString().toUpperCase()
                                 .replace("{", "")
                                 .replace("}", "")
                                 .replace("=", " ")
@@ -148,5 +178,23 @@ public class UltimasPosicaoActivity extends Activity {
         dataPos4.setVisibility(v);
         posicao5.setVisibility(v);
         dataPos5.setVisibility(v);
+    }
+
+    public void pedirPermissoes() {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
+        else
+            new ConfigGPS(referencia, this).configurarServico(false);
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 }
